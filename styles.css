@@ -1,0 +1,14 @@
+:root{--bg:#f4f1ea;--panel:#fff;--text:#161616;--muted:#6b665f;--line:#ded8cd;--accent:#b42318;--shadow:0 18px 50px rgba(0,0,0,.09)}
+[data-theme="dark"]{--bg:#111;--panel:#1c1c1c;--text:#f7f3eb;--muted:#aaa39a;--line:#353535;--accent:#ff6b5f;--shadow:0 18px 50px rgba(0,0,0,.35)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button{font:inherit;color:inherit}.shell{max-width:720px;margin:auto;padding:max(24px,env(safe-area-inset-top)) 18px max(32px,env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.eyebrow{font-size:.72rem;letter-spacing:.16em;color:var(--muted);margin:0 0 5px}h1{font-size:1.75rem;margin:0}h2{line-height:1.2}
+.iconBtn,.mode,.secondary,.controls button,.subControls button,.followBtn{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px 15px}
+.iconBtn{width:46px;height:46px}.panel{display:block}.hidden{display:none!important}.modeGrid{display:grid;gap:12px}.mode{text-align:left;display:flex;flex-direction:column;gap:6px;cursor:pointer}.mode strong{font-size:1.05rem}.mode span{color:var(--muted);font-size:.9rem;line-height:1.4}.mode:active{transform:scale(.99)}
+.deckPicker{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.deckPicker button{padding:12px;border:1px solid var(--line);background:var(--panel);border-radius:12px;text-align:left}
+.secondary{width:100%;margin-top:14px}.status{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-bottom:12px}
+.card{min-height:430px;background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:30px 24px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;position:relative}
+.card h2{font-size:clamp(1.55rem,6vw,2.25rem);margin:18px 0}.pill{align-self:flex-start;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.followBtn{align-self:flex-start;background:transparent;padding:10px 12px}.follow{font-size:1.05rem;color:var(--muted);line-height:1.5}.pass{margin-top:auto;color:var(--muted);font-size:.78rem}
+.controls{display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:8px;margin-top:14px}.controls button,.subControls button{min-height:50px}.primary{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}.subControls{display:flex;justify-content:space-between;margin-top:8px}.subControls button{background:transparent;border:none;color:var(--muted)}
+@media(max-width:420px){.card{min-height:400px}.controls{grid-template-columns:1fr 1fr}.controls .primary{grid-column:1/-1;grid-row:1}.deckPicker{grid-template-columns:1fr}}
