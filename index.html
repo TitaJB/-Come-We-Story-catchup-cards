@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>Catch-Up Cards</title>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">OFFLINE CONVERSATION DECK</p>
+        <h1>Catch-Up Cards</h1>
+      </div>
+      <button id="themeBtn" class="iconBtn" aria-label="Toggle theme">◐</button>
+    </header>
+
+    <section id="home" class="panel">
+      <h2>Choose how the conversation flows</h2>
+      <div class="modeGrid">
+        <button class="mode" data-mode="smart"><strong>Smart Shuffle</strong><span>Varied, but avoids emotional whiplash.</span></button>
+        <button class="mode" data-mode="random"><strong>Pure Random</strong><span>All 750 prompts, fully shuffled.</span></button>
+        <button class="mode" data-mode="journey"><strong>Conversation Journey</strong><span>Starts light and gradually deepens.</span></button>
+        <button class="mode" data-mode="deck"><strong>Browse by Deck</strong><span>Choose one theme and shuffle within it.</span></button>
+      </div>
+      <div id="deckPicker" class="deckPicker hidden"></div>
+      <button id="resumeBtn" class="secondary hidden">Resume previous session</button>
+    </section>
+
+    <section id="game" class="panel hidden">
+      <div class="status">
+        <span id="category"></span>
+        <span id="progress"></span>
+      </div>
+      <article id="card" class="card">
+        <span id="cardType" class="pill"></span>
+        <h2 id="question"></h2>
+        <button id="followBtn" class="followBtn">Reveal follow-up</button>
+        <p id="followUp" class="follow hidden"></p>
+        <p class="pass">You can always pass without explaining.</p>
+      </article>
+      <div class="controls">
+        <button id="prevBtn">Previous</button>
+        <button id="favBtn">♡ Favourite</button>
+        <button id="nextBtn" class="primary">Next</button>
+      </div>
+      <div class="subControls">
+        <button id="homeBtn">Modes</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
