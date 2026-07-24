@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-dataset.yml'
-      - 'data/questions.json.gz.b64'
+      - 'data/questions.json'
 
 permissions:
   contents: write
@@ -16,15 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decode and validate full question dataset
+      - name: Validate full question dataset
         run: |
           python3 - <<'PY'
-          import base64, gzip, json
+          import json
           from pathlib import Path
 
-          source = Path('data/questions.json.gz.b64')
-          encoded = ''.join(source.read_text(encoding='utf-8').split())
-          questions = json.loads(gzip.decompress(base64.b64decode(encoded)).decode('utf-8'))
+          source = Path('data/questions.json')
+          questions = json.loads(source.read_text(encoding='utf-8'))
 
           if len(questions) != 750:
               raise SystemExit(f'Expected 750 records, found {len(questions)}')
@@ -33,11 +32,7 @@ jobs:
           if len({item['question'] for item in questions}) != 750:
               raise SystemExit('Question text is not unique')
 
-          Path('data/questions.json').write_text(
-              json.dumps(questions, ensure_ascii=False, separators=(',', ':')),
-              encoding='utf-8'
-          )
-          print('Published 750 validated questions')
+          print('Validated 750-question dataset')
           PY
       - name: Commit generated dataset
         run: |

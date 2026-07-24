@@ -48,19 +48,14 @@ function start(selectedMode,category=null){
   else session=smartDeck();
   index=0; $("#home").classList.add("hidden"); $("#game").classList.remove("hidden"); render();
 }
-async function loadCompressedQuestions(){
-  if(typeof DecompressionStream==="undefined")throw new Error("gzip decompression unavailable");
-  const encoded=(await fetch("data/questions.json.gz.b64").then(r=>{if(!r.ok)throw new Error("dataset missing");return r.text();})).trim();
-  if(!/^[A-Za-z0-9+/=]+$/.test(encoded))throw new Error("dataset payload invalid");
-  const binary=atob(encoded); const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
-  const parsed=JSON.parse(await new Response(stream).text());
-  if(!Array.isArray(parsed)||parsed.length!==750)throw new Error("dataset validation failed");
-  return parsed;
-}
 async function loadQuestions(){
-  try{return await loadCompressedQuestions();}
+  try{
+    const response=await fetch("data/questions.json",{cache:"no-store"});
+    if(!response.ok)throw new Error("dataset missing");
+    const parsed=await response.json();
+    if(!Array.isArray(parsed)||parsed.length!==750||new Set(parsed.map(q=>q.id)).size!==750||new Set(parsed.map(q=>q.question)).size!==750)throw new Error("dataset validation failed");
+    return parsed;
+  }
   catch(error){
     console.warn("Full dataset could not be loaded; using bundled fallback decks.",error);
     const paths=["data/light-funny.json","data/catch-up.json"];
