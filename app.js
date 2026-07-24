@@ -50,7 +50,7 @@ function start(selectedMode,category=null){
 }
 async function loadQuestions(){
   try{
-    const response=await fetch("data/questions.json",{cache:"no-store"});
+    const response=await fetch("data/questions.json");
     if(!response.ok)throw new Error("dataset missing");
     const parsed=await response.json();
     if(!Array.isArray(parsed)||parsed.length!==750||new Set(parsed.map(q=>q.id)).size!==750||new Set(parsed.map(q=>q.question)).size!==750)throw new Error("dataset validation failed");
