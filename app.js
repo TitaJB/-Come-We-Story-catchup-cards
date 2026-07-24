@@ -53,7 +53,10 @@ async function loadQuestions(){
     const response=await fetch("data/questions.json");
     if(!response.ok)throw new Error("dataset missing");
     const parsed=await response.json();
-    if(!Array.isArray(parsed)||parsed.length!==750||new Set(parsed.map(q=>q.id)).size!==750||new Set(parsed.map(q=>q.question)).size!==750)throw new Error("dataset validation failed");
+    if(!Array.isArray(parsed))throw new Error("dataset is not an array");
+    if(parsed.length!==750)throw new Error(`expected 750 questions, found ${parsed.length}`);
+    if(new Set(parsed.map(q=>q.id)).size!==750)throw new Error("question IDs are not unique");
+    if(new Set(parsed.map(q=>q.question)).size!==750)throw new Error("question text is not unique");
     return parsed;
   }
   catch(error){
