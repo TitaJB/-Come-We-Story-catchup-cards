@@ -6,8 +6,23 @@ function save(){localStorage.setItem(stateKey,JSON.stringify({ids:session.map(q=
 function restore(){try{const s=JSON.parse(localStorage.getItem(stateKey)||"null");if(!s)return false;session=s.ids.map(id=>all.find(q=>q.id===id)).filter(Boolean);index=Math.max(0,Math.min(s.index,session.length-1));mode=s.mode||"smart";return session.length>0;}catch{return false;}}
 function render(){const q=session[index];if(!q)return;$("#category").textContent=q.category;$("#progress").textContent=`${index+1} / ${session.length}`;$("#cardType").textContent=q.type.replaceAll("_"," ");$("#question").textContent=q.question;$("#followUp").textContent=q.followUp;$("#followUp").classList.add("hidden");$("#followBtn").textContent="Reveal follow-up";const favs=new Set(JSON.parse(localStorage.getItem(favKey)||"[]"));$("#favBtn").textContent=favs.has(q.id)?"♥ Favourited":"♡ Favourite";save();}
 function start(selectedMode,category=null){if(!all.length)return;mode=selectedMode;if(selectedMode==="random")session=shuffle(all);else if(selectedMode==="journey")session=journeyDeck();else if(selectedMode==="deck")session=shuffle(all.filter(q=>q.category===category));else session=smartDeck();index=0;$("#home").classList.add("hidden");$("#game").classList.remove("hidden");render();}
-async function decodePack(path){if(typeof DecompressionStream==="undefined")throw new Error("gzip unavailable");const response=await fetch(path,{cache:"no-store"});if(!response.ok)throw new Error(`Missing ${path}`);const encoded=(await response.text()).trim();if(!/^[A-Za-z0-9+/=]+$/.test(encoded))throw new Error(`Invalid ${path}`);const binary=atob(encoded),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));const parsed=JSON.parse(await new Response(stream).text());if(!Array.isArray(parsed)||parsed.length!==150)throw new Error(`Bad pack ${path}`);return parsed;}
-async function loadQuestions(){try{const paths=[1,2,3,4,5].map(n=>`data/questions-pack-${n}.json.gz.b64`),packs=await Promise.all(paths.map(decodePack)),data=packs.flat();if(data.length!==750||new Set(data.map(q=>q.id)).size!==750)throw new Error("Dataset validation failed");return data;}catch(error){console.warn("Using fallback decks",error);const paths=["data/light-funny.json","data/catch-up.json"];const decks=await Promise.all(paths.map(p=>fetch(p).then(r=>{if(!r.ok)throw new Error(`Missing ${p}`);return r.json();})));return decks.flat();}}
+async function loadQuestions(){
+  try{
+    const response=await fetch("data/questions.json");
+    if(!response.ok)throw new Error("Missing data/questions.json");
+    const data=await response.json();
+    if(!Array.isArray(data))throw new Error("Dataset is not an array");
+    if(data.length!==750)throw new Error(`Expected 750 questions, found ${data.length}`);
+    if(new Set(data.map(q=>q.id)).size!==750)throw new Error("Question IDs are not unique");
+    if(new Set(data.map(q=>q.question)).size!==750)throw new Error("Question text is not unique");
+    return data;
+  }catch(error){
+    console.warn("Using fallback decks",error);
+    const paths=["data/light-funny.json","data/catch-up.json"];
+    const decks=await Promise.all(paths.map(p=>fetch(p).then(r=>{if(!r.ok)throw new Error(`Missing ${p}`);return r.json();})));
+    return decks.flat();
+  }
+}
 function initialiseDeckPicker(){const cats=[...new Set(all.map(q=>q.category))];$("#deckPicker").innerHTML=cats.map(c=>`<button data-cat="${c.replaceAll('"','&quot;')}">${c}</button>`).join("");$("#deckPicker").addEventListener("click",e=>{if(e.target.dataset.cat)start("deck",e.target.dataset.cat)});if(localStorage.getItem(stateKey))$("#resumeBtn").classList.remove("hidden");}
 loadQuestions().then(data=>{all=data;initialiseDeckPicker();}).catch(error=>{console.error(error);document.querySelector("#home h2").textContent="The question deck could not be loaded. Please refresh while online once.";});
 document.addEventListener("click",e=>{const m=e.target.closest("[data-mode]")?.dataset.mode;if(m==="deck")$("#deckPicker").classList.toggle("hidden");else if(m)start(m);});
