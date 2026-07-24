@@ -1,6 +1,7 @@
 name: Build question dataset
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
