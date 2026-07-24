@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-dataset.yml'
-      - 'data/questions-pack-*.json.gz.b64'
+      - 'data/questions.json.gz.b64'
 
 permissions:
   contents: write
@@ -16,20 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decode and validate question packs
+      - name: Decode and validate full question dataset
         run: |
           python3 - <<'PY'
           import base64, gzip, json
           from pathlib import Path
 
-          questions = []
-          for number in range(1, 6):
-              path = Path(f'data/questions-pack-{number}.json.gz.b64')
-              encoded = ''.join(path.read_text(encoding='utf-8').split())
-              pack = json.loads(gzip.decompress(base64.b64decode(encoded)).decode('utf-8'))
-              if len(pack) != 150:
-                  raise SystemExit(f'{path} contains {len(pack)} records instead of 150')
-              questions.extend(pack)
+          source = Path('data/questions.json.gz.b64')
+          encoded = ''.join(source.read_text(encoding='utf-8').split())
+          questions = json.loads(gzip.decompress(base64.b64decode(encoded)).decode('utf-8'))
 
           if len(questions) != 750:
               raise SystemExit(f'Expected 750 records, found {len(questions)}')
