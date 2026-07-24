@@ -22,12 +22,14 @@ function smartDeck(){
   }
   return out;
 }
-function save(){
-  localStorage.setItem(stateKey, JSON.stringify({ids:session.map(q=>q.id),index,mode}));
-}
+function save(){localStorage.setItem(stateKey,JSON.stringify({ids:session.map(q=>q.id),index,mode}));}
 function restore(){
-  const s=JSON.parse(localStorage.getItem(stateKey)||"null"); if(!s) return false;
-  session=s.ids.map(id=>all.find(q=>q.id===id)).filter(Boolean); index=Math.min(s.index,session.length-1); mode=s.mode; return session.length>0;
+  try{
+    const s=JSON.parse(localStorage.getItem(stateKey)||"null"); if(!s)return false;
+    session=s.ids.map(id=>all.find(q=>q.id===id)).filter(Boolean);
+    index=Math.max(0,Math.min(s.index,session.length-1)); mode=s.mode||"smart";
+    return session.length>0;
+  }catch{return false;}
 }
 function render(){
   const q=session[index]; if(!q)return;
@@ -35,10 +37,10 @@ function render(){
   $("#cardType").textContent=q.type.replaceAll("_"," "); $("#question").textContent=q.question;
   $("#followUp").textContent=q.followUp; $("#followUp").classList.add("hidden"); $("#followBtn").textContent="Reveal follow-up";
   const favs=new Set(JSON.parse(localStorage.getItem(favKey)||"[]"));
-  $("#favBtn").textContent=favs.has(q.id)?"♥ Favourited":"♡ Favourite";
-  save();
+  $("#favBtn").textContent=favs.has(q.id)?"♥ Favourited":"♡ Favourite"; save();
 }
-function start(selectedMode, category=null){
+function start(selectedMode,category=null){
+  if(!all.length)return;
   mode=selectedMode;
   if(selectedMode==="random")session=shuffle(all);
   else if(selectedMode==="journey")session=journeyDeck();
@@ -46,17 +48,36 @@ function start(selectedMode, category=null){
   else session=smartDeck();
   index=0; $("#home").classList.add("hidden"); $("#game").classList.remove("hidden"); render();
 }
-fetch("data/questions.json").then(r=>r.json()).then(data=>{
-  all=data;
+async function loadCompressedQuestions(){
+  if(typeof DecompressionStream==="undefined")throw new Error("gzip decompression unavailable");
+  const encoded=(await fetch("data/questions.json.gz.b64").then(r=>{if(!r.ok)throw new Error("dataset missing");return r.text();})).trim();
+  if(!/^[A-Za-z0-9+/=]+$/.test(encoded))throw new Error("dataset payload invalid");
+  const binary=atob(encoded); const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  const parsed=JSON.parse(await new Response(stream).text());
+  if(!Array.isArray(parsed)||parsed.length!==750)throw new Error("dataset validation failed");
+  return parsed;
+}
+async function loadQuestions(){
+  try{return await loadCompressedQuestions();}
+  catch(error){
+    console.warn("Full dataset could not be loaded; using bundled fallback decks.",error);
+    const paths=["data/light-funny.json","data/catch-up.json"];
+    const decks=await Promise.all(paths.map(p=>fetch(p).then(r=>{if(!r.ok)throw new Error(`Missing ${p}`);return r.json();})));
+    return decks.flat();
+  }
+}
+function initialiseDeckPicker(){
   const cats=[...new Set(all.map(q=>q.category))];
   $("#deckPicker").innerHTML=cats.map(c=>`<button data-cat="${c.replaceAll('"','&quot;')}">${c}</button>`).join("");
   $("#deckPicker").addEventListener("click",e=>{if(e.target.dataset.cat)start("deck",e.target.dataset.cat)});
   if(localStorage.getItem(stateKey))$("#resumeBtn").classList.remove("hidden");
+}
+loadQuestions().then(data=>{all=data;initialiseDeckPicker();}).catch(error=>{
+  console.error(error); document.querySelector("#home h2").textContent="The question deck could not be loaded. Please refresh while online once.";
 });
-document.addEventListener("click",e=>{
-  const m=e.target.closest("[data-mode]")?.dataset.mode;
-  if(m==="deck")$("#deckPicker").classList.toggle("hidden"); else if(m)start(m);
-});
+document.addEventListener("click",e=>{const m=e.target.closest("[data-mode]")?.dataset.mode;if(m==="deck")$("#deckPicker").classList.toggle("hidden");else if(m)start(m);});
 $("#nextBtn").onclick=()=>{if(index<session.length-1){index++;render();}};
 $("#prevBtn").onclick=()=>{if(index>0){index--;render();}};
 $("#followBtn").onclick=()=>{$("#followUp").classList.toggle("hidden");$("#followBtn").textContent=$("#followUp").classList.contains("hidden")?"Reveal follow-up":"Hide follow-up";};
