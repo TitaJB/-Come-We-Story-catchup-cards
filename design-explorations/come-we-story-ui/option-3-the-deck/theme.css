@@ -1,0 +1,390 @@
+/* ==========================================================================
+   OPTION 3 — "THE DECK"
+   The app is literally a deck of cards, so treat it like one. A felt table,
+   a physical stack you can see the depth of, portrait cards with corner index
+   marks, and a woven card back per deck.
+
+   The one place elevation is used is where a real object would cast one: the
+   top card sitting on the stack. Nothing else floats.
+   ========================================================================== */
+
+:root{
+  --felt:        #1F4739;   /* the table */
+  --felt-2:      #17372C;   /* deeper felt, wells */
+  --felt-3:      #2A5847;   /* raised felt, controls */
+  --face:        #FCFAF4;   /* card face */
+  --face-2:      #F1EADA;   /* card face, secondary areas */
+  --edge:        #E3DACA;   /* card edge / hairline on face */
+  --ink:         #171514;   /* text on card */
+  --ink-2:       #5C554C;
+  --ink-3:       #8B8377;
+  --onfelt:      #EDF3EF;   /* text on felt */
+  --onfelt-2:    #A8C1B4;
+
+  --suit-red:    #C0341F;
+  --suit-black:  #22201E;
+  --foil:        #D9A441;
+
+  --d-sun:#C98A12; --d-clay:#A8502C; --d-rose:#A63B57; --d-indigo:#31518A;
+  --d-slate:#4C5A66; --d-kola:#B32E1A; --d-green:#2C6B4E; --d-gold:#B07C1E;
+
+  --focus:       #D9A441;
+
+  --display: 'Instrument Serif', 'Bitstream Charter', Georgia, serif;
+  --text:    Inter, 'Liberation Sans', system-ui, sans-serif;
+
+  --t-xs:.6875rem; --t-sm:.8125rem; --t-base:.9375rem; --t-md:1.0625rem;
+  --t-lg:1.25rem;  --t-xl:1.625rem; --t-2xl:2.125rem;  --t-3xl:2.875rem; --t-4xl:3.5rem;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
+  --s7:32px; --s8:40px; --s9:56px; --s10:72px;
+
+  --r-card:14px; --r-sm:6px; --r-md:10px; --r-pill:999px;
+}
+
+/* "Dark" here means the lights down and the felt deeper — the cards stay
+   readable paper either way, exactly like a real table. */
+[data-theme="dark"]{
+  --felt:#10231C; --felt-2:#0A1913; --felt-3:#1A3A2E;
+  --face:#EDE6D8; --face-2:#DFD6C4; --edge:#C9BFAB;
+  --onfelt:#D8E6DE; --onfelt-2:#7FA08F;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--felt);color:var(--onfelt);
+  font-family:var(--text);font-size:var(--t-base);line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+/* felt nap — a fine directional weave, 3% */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.055;
+  background-image:
+    repeating-linear-gradient(45deg,#fff 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(-45deg,#000 0 1px,transparent 1px 4px);
+}
+h1,h2,h3,h4{font-family:var(--display);margin:0;line-height:1.05;font-weight:400;letter-spacing:-.01em}
+p{margin:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:var(--foil);text-underline-offset:3px}
+.ico{width:1.25em;height:1.25em;flex:0 0 auto;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.hue-sun{--deck:var(--d-sun)}     .hue-clay{--deck:var(--d-clay)}
+.hue-rose{--deck:var(--d-rose)}   .hue-indigo{--deck:var(--d-indigo)}
+.hue-slate{--deck:var(--d-slate)} .hue-kola{--deck:var(--d-kola)}
+.hue-green{--deck:var(--d-green)} .hue-gold{--deck:var(--d-gold)}
+
+/* ==========================================================================
+   the woven card back — one CSS pattern, recoloured per deck.
+   This is the deck's identity: you recognise a deck by its back, like you
+   recognise a pack of cards.
+   ========================================================================== */
+.back{
+  background-color:var(--deck,var(--suit-black));
+  background-image:
+    repeating-linear-gradient(45deg,
+      rgba(255,255,255,.14) 0 3px, transparent 3px 9px),
+    repeating-linear-gradient(-45deg,
+      rgba(0,0,0,.20) 0 3px, transparent 3px 9px),
+    repeating-linear-gradient(90deg,
+      rgba(217,164,65,.30) 0 1px, transparent 1px 12px);
+}
+
+/* ==========================================================================
+   shell
+   ========================================================================== */
+.app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  display:flex;align-items:center;gap:var(--s4);width:100%;max-width:1240px;
+  margin:0 auto;padding:var(--s5) var(--s6);
+}
+.brand{display:flex;align-items:center;gap:var(--s3);min-width:0;text-align:left}
+/* the mark is a tiny card back */
+.brand__mark{
+  width:32px;height:44px;flex:0 0 auto;border-radius:5px;display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.28);color:var(--face);
+}
+.brand__mark .ico{width:17px;height:17px}
+.brand__name{font-family:var(--display);font-size:1.4rem;letter-spacing:0;color:var(--face)}
+.brand__eyebrow{font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--onfelt-2);font-weight:600}
+.brand__meaning{font-size:var(--t-sm);color:var(--foil);font-family:var(--display);
+  font-style:italic;font-size:var(--t-md)}
+.topbar__spacer{flex:1}
+.iconbtn{
+  width:44px;height:44px;display:grid;place-items:center;border-radius:var(--r-sm);
+  border:1px solid rgba(255,255,255,.20);background:var(--felt-3);color:var(--onfelt);
+}
+.iconbtn:hover,.iconbtn.is-hover{border-color:var(--foil);color:var(--foil)}
+.iconbtn .ico{width:20px;height:20px}
+
+.main{flex:1;width:100%;max-width:1240px;margin:0 auto;padding:var(--s5) var(--s6) var(--s10)}
+.main--narrow{max-width:900px}
+
+.pagehead{margin:var(--s5) 0 var(--s7);text-align:center}
+.pagehead h1{font-size:var(--t-3xl);color:var(--face);max-width:18ch;margin:0 auto}
+.pagehead p{margin-top:var(--s3);color:var(--onfelt-2);font-size:var(--t-md);max-width:48ch;
+  margin-inline:auto}
+.sectionlabel{font-size:var(--t-xs);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--onfelt-2);font-weight:650;margin:var(--s8) 0 var(--s4);
+  display:flex;align-items:center;gap:var(--s3)}
+.sectionlabel::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.14)}
+
+/* ==========================================================================
+   modes — dealt as four cards laid on the table, slightly fanned
+   ========================================================================== */
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s4)}
+.mode{
+  position:relative;text-align:left;color:var(--ink);border-radius:var(--r-card);
+  background:var(--face);padding:var(--s6) var(--s5) var(--s5);
+  display:flex;flex-direction:column;gap:var(--s2);min-height:186px;
+  border:1px solid var(--edge);
+  box-shadow:0 1px 0 rgba(0,0,0,.22), 0 10px 20px -12px rgba(0,0,0,.55);
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease;
+}
+.mode:nth-child(1){transform:rotate(-1.1deg)}
+.mode:nth-child(2){transform:rotate(.6deg)}
+.mode:nth-child(3){transform:rotate(-.5deg)}
+.mode:nth-child(4){transform:rotate(1.2deg)}
+.mode__pip{
+  position:absolute;top:var(--s3);right:var(--s4);width:26px;height:26px;
+  display:grid;place-items:center;color:var(--deck,var(--suit-red));
+}
+.mode__pip .ico{width:20px;height:20px}
+.mode__idx{
+  font-family:var(--display);font-size:var(--t-lg);color:var(--deck,var(--suit-red));
+  line-height:1;
+}
+.mode__t{font-family:var(--display);font-size:var(--t-xl);line-height:1.08;color:var(--ink)}
+.mode__d{color:var(--ink-2);font-size:var(--t-sm);line-height:1.45}
+.mode__rule{height:1px;background:var(--edge);margin:var(--s1) 0}
+.mode:hover,.mode.is-hover{transform:translateY(-8px) rotate(0deg);
+  box-shadow:0 2px 0 rgba(0,0,0,.22), 0 26px 40px -18px rgba(0,0,0,.7)}
+.mode[aria-expanded="true"]{transform:translateY(-8px) rotate(0deg);
+  box-shadow:0 0 0 2px var(--foil), 0 26px 40px -18px rgba(0,0,0,.7)}
+
+/* ==========================================================================
+   deck grid — each deck shown as its own card back. This is the strongest
+   idea in this direction: 15 recognisable packs, not 15 rows of text.
+   ========================================================================== */
+.deckgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--s4)}
+.deck{
+  display:flex;flex-direction:column;gap:var(--s3);align-items:center;text-align:center;
+  color:var(--onfelt);
+}
+.deck__back{
+  width:100%;aspect-ratio:3/4.1;border-radius:var(--r-card);position:relative;
+  border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;
+  box-shadow:0 1px 0 rgba(0,0,0,.25), 0 10px 18px -12px rgba(0,0,0,.6);
+  transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease;
+}
+/* the emblem panel in the middle of the back */
+.deck__emblem{
+  width:58%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  background:var(--face);color:var(--deck);border:2px solid rgba(0,0,0,.28);
+}
+.deck__emblem .ico{width:46%;height:46%}
+.deck__n{font-size:var(--t-sm);font-weight:600;line-height:1.3;min-height:2.6em;
+  display:flex;align-items:center;justify-content:center}
+.deck__c{font-size:var(--t-xs);color:var(--onfelt-2);font-variant-numeric:tabular-nums}
+.deck:hover .deck__back,.deck.is-hover .deck__back{transform:translateY(-8px) scale(1.02);
+  box-shadow:0 2px 0 rgba(0,0,0,.25), 0 24px 34px -16px rgba(0,0,0,.72)}
+.deck.is-selected .deck__back{
+  transform:translateY(-8px);box-shadow:0 0 0 3px var(--foil), 0 24px 34px -16px rgba(0,0,0,.72)}
+.deck.is-selected .deck__n{color:var(--foil);font-weight:700}
+
+/* ==========================================================================
+   THE STACK — the reading screen. You can see the cards underneath, so the
+   750 has physical weight. Portrait ratio like a real card.
+   ========================================================================== */
+.stack{position:relative;max-width:560px;margin:0 auto;padding-bottom:var(--s2)}
+.stack__under{
+  position:absolute;left:0;right:0;top:0;height:100%;border-radius:var(--r-card);
+  background:var(--face-2);border:1px solid var(--edge);
+}
+.stack__under--1{transform:translateY(10px) rotate(1.6deg) scale(.985);opacity:.55}
+.stack__under--2{transform:translateY(20px) rotate(-2.1deg) scale(.968);opacity:.32}
+
+.card{
+  position:relative;background:var(--face);color:var(--ink);border-radius:var(--r-card);
+  border:1px solid var(--edge);padding:var(--s7) var(--s6);
+  display:flex;flex-direction:column;gap:var(--s5);min-height:460px;
+  box-shadow:0 2px 0 rgba(0,0,0,.2), 0 24px 44px -20px rgba(0,0,0,.65);
+}
+/* corner index marks, like the 7♠ on a playing card */
+.index{
+  position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;
+  color:var(--deck,var(--suit-red));font-family:var(--display);line-height:1;
+}
+.index--tl{top:var(--s4);left:var(--s4)}
+.index--br{bottom:var(--s4);right:var(--s4);transform:rotate(180deg)}
+.index__n{font-size:var(--t-md);font-variant-numeric:tabular-nums}
+.index .ico{width:16px;height:16px}
+
+.card__inner{padding:var(--s5) var(--s4);display:flex;flex-direction:column;gap:var(--s5);flex:1}
+.typemark{
+  align-self:center;font-size:var(--t-xs);letter-spacing:.24em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);
+}
+.question{
+  font-family:var(--display);font-size:var(--t-3xl);line-height:1.08;text-align:center;
+  letter-spacing:-.012em;max-width:17ch;margin:0 auto;text-wrap:balance;color:var(--ink);
+}
+.hairline{height:1px;background:var(--edge);width:64px;margin:0 auto}
+.followbtn{
+  align-self:center;display:inline-flex;align-items:center;gap:var(--s2);
+  color:var(--suit-red);font-weight:600;font-size:var(--t-sm);min-height:36px;
+  letter-spacing:.02em;
+}
+.followbtn .ico{width:16px;height:16px}
+.followbtn:hover,.followbtn.is-hover{color:var(--ink)}
+.follow{
+  text-align:center;color:var(--ink-2);font-size:var(--t-md);max-width:34ch;margin:0 auto;
+  font-family:var(--display);font-style:italic;font-size:var(--t-lg);line-height:1.35;
+}
+.pass{margin-top:auto;text-align:center;font-size:var(--t-xs);color:var(--ink-3);
+  letter-spacing:.04em}
+
+.cardmeta{display:flex;align-items:center;justify-content:center;gap:var(--s3);
+  margin-bottom:var(--s4);flex-wrap:wrap}
+.deckchip{display:inline-flex;align-items:center;gap:var(--s2);color:var(--onfelt);
+  font-size:var(--t-sm);font-weight:600;padding:6px 14px;border-radius:var(--r-pill);
+  background:var(--felt-3);border:1px solid rgba(255,255,255,.16)}
+.deckchip .ico{width:16px;height:16px;color:var(--deck)}
+.progress{font-size:var(--t-sm);color:var(--onfelt-2);font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;gap:var(--s3)}
+.progress__bar{width:70px;height:3px;background:rgba(255,255,255,.18);border-radius:2px;position:relative}
+.progress__fill{position:absolute;inset:0 auto 0 0;background:var(--foil);border-radius:2px}
+
+/* ==========================================================================
+   buttons
+   ========================================================================== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  min-height:48px;padding:0 var(--s5);border-radius:var(--r-pill);
+  border:1px solid rgba(255,255,255,.24);background:var(--felt-3);color:var(--onfelt);
+  font-weight:600;font-size:var(--t-base);
+  transition:background .14s ease,border-color .14s ease,color .14s ease;
+}
+.btn .ico{width:18px;height:18px}
+.btn:hover,.btn.is-hover{border-color:var(--foil);color:var(--face)}
+.btn--primary{background:var(--foil);color:#241A05;border-color:var(--foil);font-weight:700}
+.btn--primary:hover,.btn--primary.is-hover{background:#E8B95C;border-color:#E8B95C}
+.btn--quiet{border-color:transparent;background:transparent;color:var(--onfelt-2)}
+.btn--quiet:hover,.btn--quiet.is-hover{color:var(--face);background:var(--felt-3)}
+.btn--fav.is-on{border-color:var(--suit-red);color:#FF9A87;
+  background:color-mix(in srgb,var(--suit-red) 30%,transparent)}
+.btn--fav.is-on .ico{fill:#FF9A87}
+.btn[disabled],.btn.is-disabled{color:var(--onfelt-2);opacity:.45;cursor:not-allowed;
+  border-color:rgba(255,255,255,.12);background:transparent}
+.btn--lg{min-height:56px;font-size:var(--t-md);padding:0 var(--s8)}
+
+.controls{display:grid;grid-template-columns:56px 56px 1fr;gap:var(--s3);align-items:center;
+  max-width:560px;margin:var(--s6) auto 0}
+.controls .btn{padding:0}
+.controls .btn--primary{padding:0 var(--s6)}
+.subcontrols{display:flex;justify-content:space-between;max-width:560px;margin:var(--s3) auto 0}
+
+:where(button,a,[tabindex]):focus-visible,.is-focus{
+  outline:2.5px solid var(--focus);outline-offset:3px;border-radius:var(--r-sm);
+}
+.skip{position:absolute;left:var(--s4);top:-60px;z-index:60;background:var(--foil);
+  color:#241A05;padding:var(--s3) var(--s4);border-radius:var(--r-sm);font-weight:650;transition:top .15s}
+.skip:focus{top:var(--s3)}
+
+/* ==========================================================================
+   states — rendered on card stock, so they belong to the same world
+   ========================================================================== */
+.state{
+  border-radius:var(--r-card);background:var(--face);color:var(--ink);border:1px solid var(--edge);
+  padding:var(--s9) var(--s7);text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:var(--s4);max-width:560px;margin:0 auto;
+  box-shadow:0 2px 0 rgba(0,0,0,.2), 0 24px 44px -20px rgba(0,0,0,.6);
+}
+.state__ico{width:56px;height:56px;display:grid;place-items:center;border-radius:50%;
+  border:1.5px solid var(--edge);color:var(--ink-2)}
+.state__ico .ico{width:26px;height:26px}
+.state h3{font-size:var(--t-2xl)}
+.state p{color:var(--ink-2);max-width:40ch}
+.state--error .state__ico{color:var(--suit-red);border-color:var(--suit-red)}
+.state--end .state__ico{color:var(--d-gold);border-color:var(--d-gold)}
+.state__actions{display:flex;gap:var(--s3);flex-wrap:wrap;justify-content:center;margin-top:var(--s2)}
+
+/* loading: cards being dealt onto the table */
+.dealer{display:flex;gap:8px;align-items:center;height:44px}
+.dealer i{width:22px;height:32px;border-radius:4px;display:block;
+  background:var(--suit-black);border:1px solid rgba(255,255,255,.2);
+  animation:deal 1.1s cubic-bezier(.2,.7,.3,1) infinite}
+.dealer i:nth-child(2){animation-delay:.12s} .dealer i:nth-child(3){animation-delay:.24s}
+.dealer i:nth-child(4){animation-delay:.36s}
+@keyframes deal{0%,100%{transform:translateY(6px) rotate(-4deg);opacity:.35}
+  50%{transform:translateY(-6px) rotate(4deg);opacity:1}}
+
+.skel{background:var(--face-2);border-radius:3px;height:1em}
+.skel--line{height:.85em;margin:0 auto .7em}
+
+.toast{
+  display:inline-flex;align-items:center;gap:var(--s3);background:var(--face);color:var(--ink);
+  border:1px solid var(--edge);padding:var(--s3) var(--s5);border-radius:var(--r-pill);
+  font-size:var(--t-base);font-weight:600;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.6);
+}
+.toast .ico{width:18px;height:18px;color:var(--suit-red);fill:var(--suit-red)}
+
+.alert{
+  display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s4);border-radius:var(--r-md);
+  background:var(--face);color:var(--ink);border:1px solid var(--suit-red);border-left-width:4px;
+  max-width:560px;margin:0 auto;
+}
+.alert .ico{width:20px;height:20px;color:var(--suit-red);margin-top:2px}
+.alert strong{display:block;margin-bottom:2px}
+
+/* ==========================================================================
+   responsive
+   ========================================================================== */
+@media (max-width:1099px){
+  .modes{grid-template-columns:repeat(2,1fr)}
+  .deckgrid{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:899px){
+  .deckgrid{grid-template-columns:repeat(3,1fr)}
+  .question{font-size:var(--t-2xl)}
+  .pagehead h1{font-size:var(--t-2xl)}
+}
+@media (max-width:719px){
+  .topbar{padding:var(--s4)}
+  .main{padding:var(--s3) var(--s4) var(--s6)}
+  .brand__eyebrow{display:none}
+  .brand__meaning{display:none}
+  .brand__name{white-space:nowrap;font-size:1.2rem}
+  /* the stack should fill the space above the dock rather than float in it */
+  .main--stage{display:flex;flex-direction:column}
+  .main--stage .stack{flex:1;display:flex;flex-direction:column}
+  .main--stage .card{flex:1}
+  .modes{grid-template-columns:1fr;gap:var(--s3)}
+  .mode{min-height:0;transform:none!important;padding:var(--s5)}
+  .mode:hover,.mode.is-hover{transform:translateY(-3px)!important}
+  .deckgrid{grid-template-columns:repeat(2,1fr);gap:var(--s3)}
+  .card{min-height:0;padding:var(--s6) var(--s4)}
+  .card__inner{padding:var(--s4) var(--s2)}
+  .question{font-size:1.75rem;max-width:none}
+  .pagehead{margin:var(--s3) 0 var(--s5)}
+  .pagehead h1{font-size:1.875rem}
+  .stack{padding-bottom:0}
+  .controls{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:none;margin:0;
+    padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom));
+    background:linear-gradient(to top,var(--felt) 62%,transparent)}
+  .subcontrols{display:none}
+  .main--stage{padding-bottom:110px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .mode:hover,.mode.is-hover,.deck:hover .deck__back{transform:none!important}
+}
+
+.note{position:fixed;right:14px;bottom:14px;z-index:80;background:var(--face);color:var(--ink);
+  font:600 11px/1.4 var(--text);letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 12px;border-radius:var(--r-pill);opacity:.85}
+@media (max-width:719px){.note{display:none}}

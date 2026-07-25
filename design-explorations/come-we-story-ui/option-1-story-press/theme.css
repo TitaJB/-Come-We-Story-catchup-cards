@@ -1,0 +1,440 @@
+/* ==========================================================================
+   OPTION 1 — "STORY PRESS"
+   West African market-print / letterpress editorial.
+   Flat surfaces, keylines instead of shadows, type does the work.
+   Zero gradients on surfaces, zero glass, zero glow. The only gradient in the
+   whole sheet is the woven strip, which is a functional deck marker.
+   ========================================================================== */
+
+:root{
+  /* ---- colour ---------------------------------------------------------- */
+  --paper:        #F2EAD9;   /* page ground */
+  --paper-2:      #FBF6EC;   /* raised surface: cards, inputs */
+  --paper-3:      #E9DEC6;   /* sunken surface: rails, wells */
+  --ink:          #1A1714;   /* primary text, primary button */
+  --ink-2:        #5A5147;   /* secondary text, metadata */
+  --ink-3:        #857A6C;   /* tertiary / disabled text */
+  --rule:         #D6C9AE;   /* 1px keylines — replaces every box-shadow */
+  --rule-strong:  #B9A88A;   /* heavier keyline for section breaks */
+
+  --indigo:       #2B4A7D;
+  --kola:         #B02A16;
+  --gold:         #C88A2E;
+  --green:        #2F6B4F;
+  --clay:         #9C4A2A;
+  --rose:         #A33B55;
+  --slate:        #4A5560;
+  --sun:          #B07A12;
+
+  --focus:        #B02A16;
+
+  /* ---- type ------------------------------------------------------------ */
+  --display: Fraunces, 'Bitstream Charter', Georgia, serif;
+  --text:    Inter, 'Liberation Sans', system-ui, sans-serif;
+
+  --t-xs:.6875rem; --t-sm:.8125rem; --t-base:.9375rem; --t-md:1.0625rem;
+  --t-lg:1.25rem;  --t-xl:1.5rem;   --t-2xl:2rem;      --t-3xl:2.75rem; --t-4xl:3.5rem;
+
+  /* ---- space (8pt) ----------------------------------------------------- */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
+  --s7:32px; --s8:40px; --s9:56px; --s10:72px;
+
+  /* ---- radius: deliberately small. Printed cards have crisp corners. ---- */
+  --r-sm:3px; --r-md:5px; --r-lg:8px; --r-pill:999px;
+
+  --rail-w: 296px;
+  --measure: 22ch;   /* question line length */
+}
+
+[data-theme="dark"]{
+  --paper:#171412; --paper-2:#211D1A; --paper-3:#13100E;
+  --ink:#F4ECDD; --ink-2:#B3A899; --ink-3:#8A7F70;
+  --rule:#332C25; --indigo:#7FA0D6; --kola:#E8674D; --gold:#E0AC55;
+  --green:#68B08B; --clay:#D2805B; --rose:#D97D93; --slate:#94A3B1; --sun:#DBA93C;
+  --focus:#E8674D;
+}
+
+/* ==========================================================================
+   base
+   ========================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:var(--t-base);
+  line-height:1.55;
+  font-feature-settings:"cv05" 1,"ss01" 1;
+  -webkit-font-smoothing:antialiased;
+}
+/* Paper tooth. 1.5% opacity — reads as fibre, not as a texture effect. */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;
+  background-image:radial-gradient(var(--ink) .5px,transparent .5px);
+  background-size:3px 3px;
+}
+h1,h2,h3,h4{font-family:var(--display);font-weight:800;line-height:1.08;margin:0;
+  letter-spacing:-.015em;font-variation-settings:"opsz" 60,"SOFT" 0,"WONK" 0}
+p{margin:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:var(--indigo);text-underline-offset:3px}
+/* <use> does not inherit presentation attributes from the sprite element, so the
+   stroke system has to live here. */
+.ico{width:1.25em;height:1.25em;flex:0 0 auto;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ==========================================================================
+   the woven strip — the one recurring cultural motif.
+   A strip-weave band (kente / aso-oke). Used ONLY where it carries meaning:
+   the top edge of the page, and the deck marker down the side of a card.
+   ========================================================================== */
+/* Warp threads, not bunting. Mostly negative space with periodic coloured
+   threads — reads as woven cloth at a glance, stays quiet up close. */
+.weave{
+  height:5px;width:100%;flex:0 0 auto;background-color:var(--paper-3);
+  background-image:repeating-linear-gradient(90deg,
+    var(--ink)    0 2px, transparent 2px 9px,
+    var(--kola)   9px 11px, transparent 11px 18px,
+    var(--ink)    18px 20px, transparent 20px 27px,
+    var(--gold)   27px 29px, transparent 29px 36px,
+    var(--ink)    36px 38px, transparent 38px 45px,
+    var(--indigo) 45px 47px, transparent 47px 54px);
+}
+/* Card spine: solid deck colour. The deck's identity, not decoration. */
+.card__spine{background:var(--deck,var(--ink))}
+.tick{width:4px;border-radius:1px;align-self:stretch;background:var(--deck,var(--ink))}
+
+.hue-indigo{--deck:var(--indigo)} .hue-kola{--deck:var(--kola)}
+.hue-gold{--deck:var(--gold)}     .hue-green{--deck:var(--green)}
+.hue-clay{--deck:var(--clay)}     .hue-rose{--deck:var(--rose)}
+.hue-slate{--deck:var(--slate)}   .hue-sun{--deck:var(--sun)}
+
+/* ==========================================================================
+   app shell
+   ========================================================================== */
+.app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+.masthead{
+  border-bottom:1px solid var(--rule);
+  background:var(--paper);
+  position:sticky;top:0;z-index:20;
+}
+.masthead__inner{
+  max-width:1320px;margin:0 auto;padding:var(--s4) var(--s6);
+  display:flex;align-items:center;gap:var(--s5);
+}
+.brand{display:flex;align-items:center;gap:var(--s3);min-width:0;text-align:left}
+.brand__mark{
+  width:44px;height:44px;flex:0 0 auto;border:1.5px solid var(--ink);border-radius:var(--r-sm);
+  display:grid;place-items:center;background:var(--paper-2);
+}
+.brand__mark svg{width:24px;height:24px}
+.brand__eyebrow{
+  font-size:var(--t-xs);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:600;margin-bottom:1px;
+}
+.brand__name{font-size:var(--t-lg);font-variation-settings:"opsz" 120,"SOFT" 0;letter-spacing:-.02em}
+.brand__meaning{font-size:var(--t-sm);color:var(--kola);font-weight:600;font-style:italic;
+  font-family:var(--display);font-variation-settings:"opsz" 20;margin-top:1px}
+.masthead__spacer{flex:1}
+.masthead__nav{display:flex;gap:var(--s2);align-items:center}
+.crumb{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--t-sm);
+  color:var(--ink-2);font-weight:500}
+.crumb .ico{width:16px;height:16px}
+
+/* icon button — 48px hit area, meets touch minimum */
+.iconbtn{
+  width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--rule);
+  border-radius:var(--r-md);background:var(--paper-2);color:var(--ink);
+}
+.iconbtn:hover,.iconbtn.is-hover{border-color:var(--ink);background:var(--paper-3)}
+.iconbtn .ico{width:20px;height:20px}
+
+.main{flex:1;width:100%;max-width:1320px;margin:0 auto;padding:var(--s7) var(--s6) var(--s9);
+  display:grid;grid-template-columns:var(--rail-w) 1fr;gap:var(--s9);align-items:start}
+.main--single{grid-template-columns:1fr;max-width:820px}
+
+/* ==========================================================================
+   deck rail (desktop only) — persistent navigation, replaces the
+   accordion-style deck picker that currently pushes the page down.
+   ========================================================================== */
+.rail{position:sticky;top:96px}
+.rail__head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);
+  padding-bottom:var(--s3);border-bottom:1.5px solid var(--ink);margin-bottom:var(--s2);
+}
+.rail__title{font-size:var(--t-xs);letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  font-family:var(--text)}
+.rail__count{font-size:var(--t-xs);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.rail__list{list-style:none;margin:0;padding:0}
+.rail__item{border-bottom:1px solid var(--rule)}
+.rail__link{
+  width:100%;display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s2);
+  text-align:left;min-height:48px;color:var(--ink);
+}
+.rail__link .ico{width:19px;height:19px;color:var(--deck,var(--ink-2))}
+.rail__name{flex:1;font-size:var(--t-base);line-height:1.3}
+.rail__n{font-size:var(--t-xs);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.rail__link:hover,.rail__link.is-hover{background:var(--paper-2)}
+.rail__link:hover .rail__name,.rail__link.is-hover .rail__name{text-decoration:underline;text-underline-offset:3px}
+.rail__item.is-selected{background:var(--paper-2);box-shadow:inset 3px 0 0 var(--deck)}
+.rail__item.is-selected .rail__name{font-weight:650}
+
+/* ==========================================================================
+   page heads
+   ========================================================================== */
+.pagehead{margin-bottom:var(--s7)}
+.pagehead h1{font-size:var(--t-3xl);max-width:16ch;font-variation-settings:"opsz" 144,"SOFT" 0}
+.pagehead p{margin-top:var(--s3);color:var(--ink-2);font-size:var(--t-md);max-width:52ch}
+.rulehead{display:flex;align-items:center;gap:var(--s4);margin:var(--s8) 0 var(--s4)}
+.rulehead__t{font-size:var(--t-xs);letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-2);white-space:nowrap}
+.rulehead__r{flex:1;height:1px;background:var(--rule)}
+
+/* ==========================================================================
+   mode list — the four ways in. Numbered like a printed contents page.
+   ========================================================================== */
+.modes{display:grid;gap:0;border-top:1.5px solid var(--ink)}
+.mode{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--s4);
+  padding:var(--s5) var(--s3);border-bottom:1px solid var(--rule);text-align:left;
+  color:var(--ink);position:relative;
+}
+.mode__num{
+  font-family:var(--display);font-size:var(--t-lg);font-weight:800;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;width:2ch;
+}
+.mode__body{min-width:0}
+.mode__t{font-family:var(--display);font-size:var(--t-xl);font-weight:800;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:var(--s3);font-variation-settings:"opsz" 90}
+.mode__t .ico{width:22px;height:22px;color:var(--kola)}
+.mode__d{color:var(--ink-2);font-size:var(--t-base);margin-top:var(--s1)}
+.mode__go{color:var(--ink-3)}
+.mode__go .ico{width:18px;height:18px}
+.mode:hover,.mode.is-hover{background:var(--paper-2)}
+.mode:hover .mode__t,.mode.is-hover .mode__t{color:var(--kola)}
+.mode:hover .mode__go,.mode.is-hover .mode__go{color:var(--kola);transform:translateX(3px)}
+.mode__go{transition:transform .15s ease,color .15s ease}
+.mode[aria-expanded="true"]{background:var(--paper-2)}
+.mode[aria-expanded="true"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kola)}
+
+/* ==========================================================================
+   deck grid (the "Browse by Deck" surface)
+   ========================================================================== */
+.deckgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+.deck{
+  display:flex;align-items:center;gap:var(--s3);text-align:left;color:var(--ink);
+  padding:var(--s4);min-height:76px;
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  background:var(--paper);
+}
+.deck__ico{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;
+  border:1px solid var(--rule);border-radius:var(--r-sm);color:var(--deck,var(--ink));
+  background:var(--paper-2)}
+.deck__ico .ico{width:20px;height:20px}
+.deck__b{min-width:0}
+.deck__n{font-size:var(--t-base);font-weight:600;line-height:1.25}
+.deck__c{font-size:var(--t-xs);color:var(--ink-3);margin-top:2px;font-variant-numeric:tabular-nums}
+.deck:hover,.deck.is-hover{background:var(--paper-2)}
+.deck:hover .deck__ico,.deck.is-hover .deck__ico{border-color:var(--deck);background:var(--paper)}
+.deck.is-selected{background:var(--paper-2)}
+.deck.is-selected .deck__ico{background:var(--deck);border-color:var(--deck);color:var(--paper-2)}
+.deck.is-selected .deck__n{font-weight:700}
+
+/* ==========================================================================
+   THE CARD — the app's centrepiece.
+   A printed card: flat, keylined, with a woven deck marker down its spine.
+   No drop shadow. No 28px radius. No gradient fill.
+   ========================================================================== */
+.stage{display:flex;flex-direction:column;gap:var(--s4);max-width:760px}
+.cardmeta{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
+  padding-bottom:var(--s3);border-bottom:1px solid var(--rule)}
+.deckchip{display:inline-flex;align-items:center;gap:var(--s2);color:var(--deck,var(--ink));
+  font-weight:600;font-size:var(--t-sm);min-width:0}
+.deckchip .ico{width:18px;height:18px}
+/* full label always visible — no ellipsis. Wraps on mobile instead. */
+.deckchip__t{white-space:normal}
+.progress{font-size:var(--t-sm);color:var(--ink-2);font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;gap:var(--s3);white-space:nowrap}
+.progress__bar{width:84px;height:3px;background:var(--rule);position:relative}
+.progress__fill{position:absolute;inset:0 auto 0 0;background:var(--ink);width:22%}
+
+.card{
+  display:flex;background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--r-lg);
+  overflow:hidden;
+}
+.card__spine{width:6px;flex:0 0 auto}
+.card__body{padding:var(--s8) var(--s7);display:flex;flex-direction:column;gap:var(--s5);flex:1;min-width:0}
+.typemark{
+  display:inline-flex;align-items:center;gap:var(--s2);align-self:flex-start;
+  font-size:var(--t-xs);letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-2);
+}
+.typemark::after{content:"";width:34px;height:1px;background:var(--rule)}
+.question{
+  font-family:var(--display);font-weight:800;font-size:var(--t-3xl);line-height:1.1;
+  letter-spacing:-.022em;font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 0;
+  max-width:20ch;text-wrap:balance;
+}
+.followbtn{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:var(--s2);
+  color:var(--kola);font-weight:600;font-size:var(--t-base);
+  border-bottom:1.5px solid currentColor;padding:2px 0;min-height:24px;
+}
+.followbtn .ico{width:16px;height:16px}
+.followbtn:hover,.followbtn.is-hover{color:var(--ink)}
+.follow{
+  border-left:3px solid var(--deck,var(--kola));padding:var(--s2) 0 var(--s2) var(--s4);
+  color:var(--ink-2);font-size:var(--t-md);max-width:46ch;
+}
+.follow__l{display:block;font-size:var(--t-xs);letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;color:var(--ink-3);margin-bottom:var(--s1)}
+.card__foot{margin-top:auto;padding-top:var(--s5);border-top:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+.pass{font-size:var(--t-sm);color:var(--ink-3);font-style:italic;font-family:var(--display);
+  font-variation-settings:"opsz" 20}
+
+/* ==========================================================================
+   buttons
+   ========================================================================== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  min-height:48px;padding:0 var(--s5);border-radius:var(--r-md);border:1.5px solid var(--ink);
+  background:var(--paper-2);color:var(--ink);font-weight:600;font-size:var(--t-base);
+  transition:background .14s ease,color .14s ease,border-color .14s ease;
+}
+.btn .ico{width:18px;height:18px}
+.btn:hover,.btn.is-hover{background:var(--paper-3)}
+.btn--primary{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+.btn--primary:hover,.btn--primary.is-hover{background:var(--kola);border-color:var(--kola)}
+.btn--quiet{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn--quiet:hover,.btn--quiet.is-hover{color:var(--ink);background:var(--paper-2);border-color:var(--rule)}
+.btn--fav.is-on{border-color:var(--kola);color:var(--kola);background:var(--paper-2)}
+.btn--fav.is-on .ico{fill:var(--kola)}
+.btn[disabled],.btn.is-disabled{
+  border-color:var(--rule);color:var(--ink-3);background:var(--paper-3);cursor:not-allowed;
+}
+.btn--lg{min-height:56px;font-size:var(--t-md);padding:0 var(--s7)}
+
+.controls{display:grid;grid-template-columns:auto auto 1fr;gap:var(--s3);align-items:center}
+.controls .btn--primary{justify-self:end;min-width:180px}
+.subcontrols{display:flex;justify-content:space-between;padding-top:var(--s2)}
+
+/* ==========================================================================
+   focus — one ring, everywhere, always visible
+   ========================================================================== */
+:where(button,a,[tabindex]):focus-visible,.is-focus{
+  outline:2.5px solid var(--focus);outline-offset:2px;border-radius:var(--r-sm);
+}
+.skip{position:absolute;left:var(--s4);top:-60px;z-index:60;background:var(--ink);
+  color:var(--paper);padding:var(--s3) var(--s4);border-radius:var(--r-md);transition:top .15s}
+.skip:focus{top:var(--s3)}
+
+/* ==========================================================================
+   states — loading, error, end of deck, saved
+   ========================================================================== */
+.state{
+  border:1px solid var(--rule);border-radius:var(--r-lg);background:var(--paper-2);
+  padding:var(--s8) var(--s7);text-align:center;display:flex;flex-direction:column;
+  align-items:center;gap:var(--s4);
+}
+.state__ico{width:52px;height:52px;display:grid;place-items:center;border-radius:var(--r-md);
+  border:1.5px solid var(--rule)}
+.state__ico .ico{width:26px;height:26px}
+.state h3{font-size:var(--t-xl);font-variation-settings:"opsz" 90}
+.state p{color:var(--ink-2);max-width:44ch}
+.state--error .state__ico{color:var(--kola);border-color:var(--kola)}
+.state--end .state__ico{color:var(--gold);border-color:var(--gold)}
+.state__actions{display:flex;gap:var(--s3);flex-wrap:wrap;justify-content:center;margin-top:var(--s2)}
+
+/* loading: the deck being dealt. Three bars, staggered, no spinner. */
+.dealer{display:flex;gap:6px;align-items:flex-end;height:34px}
+.dealer i{width:9px;background:var(--ink);display:block;animation:deal 1.05s ease-in-out infinite}
+.dealer i:nth-child(1){animation-delay:0s}   .dealer i:nth-child(2){animation-delay:.13s}
+.dealer i:nth-child(3){animation-delay:.26s} .dealer i:nth-child(4){animation-delay:.39s}
+@keyframes deal{0%,100%{height:12px;opacity:.35}50%{height:34px;opacity:1}}
+
+.skel{background:var(--paper-3);border-radius:2px;height:1em}
+.skel--line{height:.8em;margin-bottom:.7em}
+
+/* toast / success */
+.toast{
+  display:inline-flex;align-items:center;gap:var(--s3);background:var(--ink);color:var(--paper);
+  padding:var(--s3) var(--s5);border-radius:var(--r-md);font-size:var(--t-base);font-weight:500;
+}
+.toast .ico{width:18px;height:18px;color:var(--gold)}
+
+.alert{
+  display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s4);border-radius:var(--r-md);
+  border:1px solid var(--kola);background:var(--paper-2);border-left-width:4px;
+}
+.alert .ico{width:20px;height:20px;color:var(--kola);margin-top:2px}
+.alert p{font-size:var(--t-base)}
+.alert strong{display:block;margin-bottom:2px}
+
+/* ==========================================================================
+   mobile bottom bar — the pass-the-phone controls stay in thumb reach
+   ========================================================================== */
+.mobilebar{display:none}
+
+/* ==========================================================================
+   responsive
+   ========================================================================== */
+@media (max-width:1099px){
+  .main{grid-template-columns:1fr;gap:var(--s7);max-width:820px}
+  .rail{display:none}
+  .deckgrid{grid-template-columns:repeat(2,1fr)}
+  .question{font-size:var(--t-2xl);max-width:22ch}
+  .pagehead h1{font-size:var(--t-2xl)}
+}
+@media (max-width:719px){
+  .main{padding:var(--s6) var(--s4) 132px;display:flex;flex-direction:column}
+  .stage{flex:1}
+  .card{flex:1}
+  .masthead__inner{padding:var(--s3) var(--s4);gap:var(--s3)}
+  .brand__mark{width:40px;height:40px}
+  .brand__name{font-size:var(--t-md)}
+  /* the eyebrow wraps to three lines in 390px — the tagline carries the same
+     warmth in less space, so the eyebrow is the one that goes */
+  .brand__eyebrow{display:none}
+  .brand__meaning{font-size:var(--t-xs)}
+  .deckgrid{grid-template-columns:1fr}
+  .card__body{padding:var(--s6) var(--s5);gap:var(--s4)}
+  .question{font-size:1.75rem;max-width:none;line-height:1.14}
+  .mode{grid-template-columns:auto 1fr auto;padding:var(--s4) var(--s2)}
+  .mode__t{font-size:var(--t-lg)}
+  .mode__d{font-size:var(--t-sm)}
+  .pagehead h1{font-size:1.875rem}
+  .pagehead p{font-size:var(--t-base)}
+  .cardmeta{flex-direction:row;align-items:flex-start}
+  .deckchip{font-size:var(--t-xs)}
+  .progress__bar{display:none}
+  .card__foot{flex-direction:column;align-items:flex-start;gap:var(--s3)}
+
+  /* controls move to a fixed bar: Next is the biggest, thumb-reachable target,
+     and DOM order matches visual order (prev, fav, next) so focus order is sane */
+  .controls{display:none}
+  .mobilebar{
+    display:grid;grid-template-columns:56px 56px 1fr;gap:var(--s2);align-items:center;
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom));
+    background:var(--paper);border-top:1px solid var(--rule);
+  }
+  .mobilebar .btn{min-height:52px;padding:0}
+  .mobilebar .btn--primary{padding:0 var(--s4)}
+  .subcontrols{padding-bottom:var(--s4)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* ==========================================================================
+   annotation chrome — mockup sheet only, never ships
+   ========================================================================== */
+.note{position:fixed;right:14px;bottom:14px;z-index:80;background:var(--ink);color:var(--paper);
+  font:600 11px/1.4 var(--text);letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 12px;border-radius:var(--r-pill);opacity:.85}
+@media (max-width:719px){.note{display:none}}
