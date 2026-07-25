@@ -20,6 +20,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import csv, json, re
+          from collections import Counter
           from pathlib import Path
 
           source = Path('data/questions.json')
@@ -48,6 +49,12 @@ jobs:
                   encoding='utf-8'
               )
 
+          counts = Counter(q.get('category', '') for q in questions)
+          (out / 'category-counts.json').write_text(
+              json.dumps(dict(sorted(counts.items())), ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8'
+          )
+
           with (out / 'all-questions.csv').open('w', encoding='utf-8', newline='') as handle:
               writer = csv.writer(handle)
               writer.writerow(['id','category','question','followUp','intensity','type','tags','energy'])
@@ -58,7 +65,7 @@ jobs:
                       '|'.join(q.get('tags', [])), q.get('energy','')
                   ])
 
-          print('Exported four priority decks and full inventory')
+          print('Exported priority decks, category counts and full inventory')
           PY
       - name: Commit audit source exports
         run: |
