@@ -1,11 +1,11 @@
 {
-  "name": "Catch-Up Cards",
-  "short_name": "Catch-Up",
+  "name": "Come We Story — Catch-Up Cards",
+  "short_name": "Come We Story",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f1ea",
   "theme_color": "#111111",
-  "description": "An offline conversation-card app with 750 original prompts.",
+  "description": "A relaxed, friendly offline conversation deck with 750 original prompts.",
   "icons": [
     {"src":"icons/icon-192.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any"},
     {"src":"icons/icon-512.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}

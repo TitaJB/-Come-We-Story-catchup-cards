@@ -3,28 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content="#f4f1ea">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Come We Story">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
-  <title>Catch-Up Cards</title>
+  <title>Come We Story — Catch-Up Cards</title>
 </head>
 <body>
   <main class="shell">
     <header>
-      <div>
-        <p class="eyebrow">OFFLINE CONVERSATION DECK</p>
-        <h1>Catch-Up Cards</h1>
+      <div class="brand">
+        <div class="brandMark" aria-hidden="true">💬</div>
+        <div>
+          <p class="eyebrow">OFFLINE CONVERSATION DECK</p>
+          <h1>Come We Story</h1>
+          <p class="brandMeaning">Hey, let’s catch up!</p>
+        </div>
       </div>
-      <button id="themeBtn" class="iconBtn" aria-label="Toggle theme">◐</button>
+      <button id="themeBtn" class="iconBtn" aria-label="Switch to dark theme" title="Switch to dark theme">☾</button>
     </header>
 
     <section id="home" class="panel">
-      <h2>Choose how the conversation flows</h2>
+      <div class="homeIntro">
+        <h2>Choose how the conversation flows</h2>
+        <p>Pass the phone, follow a tangent, and let the stories unfold.</p>
+      </div>
       <div class="modeGrid">
-        <button class="mode" data-mode="smart"><strong>Smart Shuffle</strong><span>Varied, but avoids emotional whiplash.</span></button>
-        <button class="mode" data-mode="random"><strong>Pure Random</strong><span>All 750 prompts, fully shuffled.</span></button>
-        <button class="mode" data-mode="journey"><strong>Conversation Journey</strong><span>Starts light and gradually deepens.</span></button>
-        <button class="mode" data-mode="deck"><strong>Browse by Deck</strong><span>Choose one theme and shuffle within it.</span></button>
+        <button class="mode" data-mode="smart"><strong>✨ Smart Shuffle</strong><span>Varied, but avoids emotional whiplash.</span></button>
+        <button class="mode" data-mode="random"><strong>🎲 Pure Random</strong><span>All 750 prompts, fully shuffled.</span></button>
+        <button class="mode" data-mode="journey"><strong>🛤️ Conversation Journey</strong><span>Starts light and gradually deepens.</span></button>
+        <button class="mode" data-mode="deck"><strong>🗂️ Browse by Deck</strong><span>Choose one theme and shuffle within it.</span></button>
       </div>
       <div id="deckPicker" class="deckPicker hidden"></div>
       <button id="resumeBtn" class="secondary hidden">Resume previous session</button>
