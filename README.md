@@ -31,3 +31,11 @@ Do not open `index.html` directly, because service workers require HTTP or HTTPS
 - `data/questions.json` — exactly 750 prompts.
 - `index.html`, `styles.css`, `app.js` — application.
 - `manifest.webmanifest`, `sw.js` — PWA/offline support.
+
+## Licence
+
+Copyright © 2026 Jamal Bangura. All rights reserved.
+
+This project is source-available for demonstration and evaluation only. It is
+not open-source software. The Come We Story question library, name, content and
+branding may not be reused or redistributed without written permission.
