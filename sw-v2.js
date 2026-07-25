@@ -1,4 +1,4 @@
-const CACHE='catchup-cards-v5-content-audit';
+const CACHE='come-we-story-v6-ui-refresh';
 const ASSETS=['./','./index.html','./styles.css','./app-v2.js','./manifest.webmanifest','./icons/icon-192.svg','./icons/icon-512.svg','./data/questions.json','./data/light-funny.json','./data/catch-up.json'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
